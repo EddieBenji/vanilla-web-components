@@ -11,14 +11,20 @@ class CustomForm extends HTMLElement {
         </style>
         <form>
             <input type="email"
-                   id="inputEmail4"
-                   name="inputEmail4"
+                   id="email"
+                   name="email"
                    placeholder="Email"/>
             
             <input type="password"
-                   id="inputPassword4"
-                   name="inputPassword4"
+                   id="password"
+                   name="password"
                    placeholder="Password"/>
+                   
+           <select id="forwarders"
+                   name="forwarders"
+                   class="form-control">
+               <option selected>Choose...</option>
+            </select>
             
             <button type="button"
                     id="submitBtn">Submit!</button>
@@ -27,21 +33,43 @@ class CustomForm extends HTMLElement {
     }
 
     connectedCallback() {
+
+        // Fire the GET(s).
+        const doGetReq = new CustomEvent('doGetRequest', {
+            composed: true,
+            detail: {
+                url: 'assets/dummy-response.json'
+            }
+        });
+        this.dispatchEvent(doGetReq);
+
+        // Prepare the submit button to fire the 'saveForm' trigger.
         const submitBtn = this.shadowRoot.querySelector('#submitBtn');
         submitBtn.addEventListener('click', () => {
+            const formData = new FormData(this.shadowRoot.querySelector('form'));
+            const formAsJson = Object.fromEntries(formData.entries());
 
             const saveFormEvent = new CustomEvent('saveForm', {
+                composed: true,
                 bubbles: true,
                 cancelable: false,
                 detail: {
-                    data: {
-                        email: this.shadowRoot.querySelector('#inputEmail4').value,
-                        password: this.shadowRoot.querySelector('#inputPassword4').value
-                    }
+                    data: formAsJson
                 }
             });
             this.dispatchEvent(saveFormEvent);
         });
+    }
+
+    set UIElements(info) {
+        const asStringArray = info.params.forwarders.map(({ name }) => name);
+        const select = this.shadowRoot.querySelector('#forwarders');
+        for (const forwarder of asStringArray) {
+            const cOption = document.createElement('option');
+            cOption.value = forwarder;
+            cOption.textContent = forwarder;
+            select.appendChild(cOption);
+        }
     }
 }
 
