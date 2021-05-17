@@ -3,29 +3,31 @@ class CustomForm extends HTMLElement {
         // Always call super first in constructor
         super();
         const shadow = this.attachShadow({ mode: 'open' });
+        shadow.innerHTML = `
+        <style>
+            form {
+                border: 1px solid black;
+            }
+        </style>
+        <form>
+            <input type="email"
+                   id="inputEmail4"
+                   name="inputEmail4"
+                   placeholder="Email"/>
+            
+            <input type="password"
+                   id="inputPassword4"
+                   name="inputPassword4"
+                   placeholder="Password"/>
+            
+            <button type="button"
+                    id="submitBtn">Submit!</button>
+        </form>
+        `;
+    }
 
-        const emailInput = document.createElement('input');
-        emailInput.name = 'inputEmail4';
-        emailInput.id = 'inputEmail4';
-        emailInput.placeholder = 'Email';
-        emailInput.type = 'email';
-
-        const passwordInput = document.createElement('input');
-        passwordInput.name = 'inputPassword4';
-        passwordInput.id = 'inputPassword4';
-        passwordInput.placeholder = 'Password';
-        passwordInput.type = 'password';
-
-        const submitBtn = document.createElement('button');
-        submitBtn.type = 'button';
-        submitBtn.textContent = 'Submit';
-
-        const form = document.createElement('form');
-        shadow.appendChild(form);
-
-        form.appendChild(emailInput);
-        form.appendChild(passwordInput);
-        form.appendChild(submitBtn);
+    connectedCallback() {
+        const submitBtn = this.shadowRoot.querySelector('#submitBtn');
         submitBtn.addEventListener('click', () => {
 
             const saveFormEvent = new CustomEvent('saveForm', {
@@ -33,8 +35,8 @@ class CustomForm extends HTMLElement {
                 cancelable: false,
                 detail: {
                     data: {
-                        email: emailInput.value,
-                        password: passwordInput.value
+                        email: this.shadowRoot.querySelector('#inputEmail4').value,
+                        password: this.shadowRoot.querySelector('#inputPassword4').value
                     }
                 }
             });
