@@ -18,7 +18,6 @@ class CustomForm extends HTMLElement {
 
         const submitBtn = document.createElement('button');
         submitBtn.type = 'button';
-        // submitBtn.value = 'Submit';
         submitBtn.textContent = 'Submit';
 
         const form = document.createElement('form');
@@ -39,7 +38,6 @@ class CustomForm extends HTMLElement {
                     }
                 }
             });
-            // this.emit
             this.dispatchEvent(saveFormEvent);
         });
     }
