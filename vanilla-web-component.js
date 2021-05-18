@@ -1,4 +1,8 @@
 class CustomForm extends HTMLElement {
+    URL_APIS = {
+        FORWARDERS: 'http://localhost:5500/api/forwarders',
+        TEST_CONNECTION: 'http://localhost:5500/api/test/mock-server'
+    };
     constructor() {
         // Always call super first in constructor
         super();
@@ -48,7 +52,7 @@ class CustomForm extends HTMLElement {
         const doGetReq = new CustomEvent('doGetRequest', {
             composed: true,
             detail: {
-                url: 'assets/dummy-response.json'
+                url: this.URL_APIS.FORWARDERS
             }
         });
         this.dispatchEvent(doGetReq);
@@ -79,8 +83,10 @@ class CustomForm extends HTMLElement {
                 bubbles: true,
                 cancelable: false,
                 detail: {
-                    url: 'http://localhost:5500/api/test/mock-server',
-                    serverIp
+                    url: this.URL_APIS.TEST_CONNECTION,
+                    body: {
+                        serverIp
+                    }
                 }
             });
             this.dispatchEvent(testConnectionEvent);
@@ -89,8 +95,8 @@ class CustomForm extends HTMLElement {
 
     set UIElements(info) {
         console.log('on the web component it self: ->', info);
-        if (info.url !== 'http://localhost:5500/api/test/mock-server') {
-            const asStringArray = info.params.forwarders.map(({ name }) => name);
+        if (info.url === this.URL_APIS.FORWARDERS) {
+            const asStringArray = info.params.map(({ name }) => name);
             const select = this.shadowRoot.querySelector('#forwarders');
             for (const forwarder of asStringArray) {
                 const cOption = document.createElement('option');
