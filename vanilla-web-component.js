@@ -108,5 +108,5 @@ class CustomForm extends HTMLElement {
     }
 }
 
-// Define the new element
-customElements.define('custom-form', CustomForm);
+// Get or Define the new element (To avoid duplicates)
+customElements.get('custom-form') || customElements.define('custom-form', CustomForm);
