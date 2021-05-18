@@ -20,12 +20,22 @@ class CustomForm extends HTMLElement {
                    name="password"
                    placeholder="Password"/>
                    
+           <label for="forwarders">Forwarders: </label>
+                   
            <select id="forwarders"
                    name="forwarders"
                    class="form-control">
                <option selected>Choose...</option>
             </select>
-            
+            <br>
+            <input type="text"
+                   id="serverIp"
+                   name="serverIp"
+                   placeholder="Server IP"/>
+                   
+           <button type="button"
+                   id="testConnectionBtn">Test connection</button>
+            <br>
             <button type="button"
                     id="submitBtn">Submit!</button>
         </form>
@@ -59,16 +69,35 @@ class CustomForm extends HTMLElement {
             });
             this.dispatchEvent(saveFormEvent);
         });
+
+        const testConnectionBtn = this.shadowRoot.querySelector('#testConnectionBtn');
+        testConnectionBtn.addEventListener('click', () => {
+            const serverIp = this.shadowRoot.querySelector('#serverIp').value;
+
+            const testConnectionEvent = new CustomEvent('doPostRequest', {
+                composed: true,
+                bubbles: true,
+                cancelable: false,
+                detail: {
+                    url: 'http://localhost:5500/api/test/mock-server',
+                    serverIp
+                }
+            });
+            this.dispatchEvent(testConnectionEvent);
+        });
     }
 
     set UIElements(info) {
-        const asStringArray = info.params.forwarders.map(({ name }) => name);
-        const select = this.shadowRoot.querySelector('#forwarders');
-        for (const forwarder of asStringArray) {
-            const cOption = document.createElement('option');
-            cOption.value = forwarder;
-            cOption.textContent = forwarder;
-            select.appendChild(cOption);
+        console.log('on the web component it self: ->', info);
+        if (info.url !== 'http://localhost:5500/api/test/mock-server') {
+            const asStringArray = info.params.forwarders.map(({ name }) => name);
+            const select = this.shadowRoot.querySelector('#forwarders');
+            for (const forwarder of asStringArray) {
+                const cOption = document.createElement('option');
+                cOption.value = forwarder;
+                cOption.textContent = forwarder;
+                select.appendChild(cOption);
+            }
         }
     }
 }
