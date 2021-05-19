@@ -3,6 +3,8 @@ class CustomForm extends HTMLElement {
         FORWARDERS: 'http://localhost:5500/api/forwarders',
         TEST_CONNECTION: 'http://localhost:5500/api/test/mock-server'
     };
+    editItem = null;
+
     constructor() {
         // Always call super first in constructor
         super();
@@ -63,15 +65,27 @@ class CustomForm extends HTMLElement {
             const formData = new FormData(this.shadowRoot.querySelector('form'));
             const formAsJson = Object.fromEntries(formData.entries());
 
-            const saveFormEvent = new CustomEvent('saveForm', {
-                composed: true,
-                bubbles: true,
-                cancelable: false,
-                detail: {
-                    data: formAsJson
-                }
-            });
-            this.dispatchEvent(saveFormEvent);
+            let saveOrUpdateFormEvent;
+            if (this.editItem) {
+                // then, you're editing
+                saveOrUpdateFormEvent = new CustomEvent('updateForm', {
+                    composed: true,
+                    bubbles: true,
+                    cancelable: false,
+                    detail: {
+                        ...formAsJson,
+                        id: this.editItem.id
+                    }
+                });
+            } else {
+                saveOrUpdateFormEvent = new CustomEvent('saveForm', {
+                    composed: true,
+                    bubbles: true,
+                    cancelable: false,
+                    detail: formAsJson
+                });
+            }
+            this.dispatchEvent(saveOrUpdateFormEvent);
         });
 
         const testConnectionBtn = this.shadowRoot.querySelector('#testConnectionBtn');
@@ -93,8 +107,17 @@ class CustomForm extends HTMLElement {
         });
     }
 
+    set itemToEdit(item) {
+        if (item !== null) {
+            // Set the data on the form:
+            this.shadowRoot.querySelector('#email').value = item.email;
+            this.shadowRoot.querySelector('#password').value = item.password;
+            this.shadowRoot.querySelector('#serverIp').value = item.serverIp;
+        }
+        this.editItem = item;
+    }
+
     set UIElements(info) {
-        console.log('on the web component it self: ->', info);
         if (info.url === this.URL_APIS.FORWARDERS) {
             const asStringArray = info.params.map(({ name }) => name);
             const select = this.shadowRoot.querySelector('#forwarders');
@@ -102,6 +125,9 @@ class CustomForm extends HTMLElement {
                 const cOption = document.createElement('option');
                 cOption.value = forwarder;
                 cOption.textContent = forwarder;
+                if (this.editItem !== null && this.editItem.forwarders && this.editItem.forwarders.some((theForwarder) => theForwarder === forwarder)) {
+                    cOption.selected = true;
+                }
                 select.appendChild(cOption);
             }
         }
