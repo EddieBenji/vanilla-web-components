@@ -12,7 +12,8 @@ class CustomForm extends HTMLElement {
         shadow.innerHTML = `
         <style>
             form {
-                border: 1px solid black;
+                border: 1px dashed #000;
+                padding: 15px;
             }
         </style>
         <form>
